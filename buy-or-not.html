@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>买不买决策器 - 帮你理性消费</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← 返回首页</a>
+    
+    <div class="tool-header">
+      <h2>🤔 买不买决策器</h2>
+      <p>回答以下问题，让理性战胜冲动</p>
+    </div>
+
+    <div class="card">
+      <div id="quiz-form">
+        <div class="question">
+          <p>1. 这个东西是什么？</p>
+          <input type="text" id="item-name" placeholder="例如：新款耳机、衣服、游戏...">
+        </div>
+
+        <div class="question">
+          <p>2. 大概多少钱？</p>
+          <input type="number" id="price" placeholder="输入金额" min="0">
+        </div>
+
+        <div class="question">
+          <p>3. 72小时后你还会想买它吗？</p>
+          <div class="options" data-question="q1">
+            <button class="option-btn" data-value="3">肯定会</button>
+            <button class="option-btn" data-value="1">可能会</button>
+            <button class="option-btn" data-value="-1">不太会</button>
+            <button class="option-btn" data-value="-3">肯定不会</button>
+          </div>
+        </div>
+
+        <div class="question">
+          <p>4. 没有它之前你的生活会受影响吗？</p>
+          <div class="options" data-question="q2">
+            <button class="option-btn" data-value="3">严重影响</button>
+            <button class="option-btn" data-value="1">有点影响</button>
+            <button class="option-btn" data-value="-1">影响不大</button>
+            <button class="option-btn" data-value="-3">完全不影响</button>
+          </div>
+        </div>
+
+        <div class="question">
+          <p>5. 你现在的存款够买它后还能撑多久？</p>
+          <div class="options" data-question="q3">
+            <button class="option-btn" data-value="-3">完全不够/需要借钱</button>
+            <button class="option-btn" data-value="-1">买了就见底</button>
+            <button class="option-btn" data-value="1">还能撑1个月</button>
+            <button class="option-btn" data-value="3">毫无压力</button>
+          </div>
+        </div>
+
+        <div class="question">
+          <p>6. 这个东西你会用多久？</p>
+          <div class="options" data-question="q4">
+            <button class="option-btn" data-value="-3">一次/几天</button>
+            <button class="option-btn" data-value="-1">几个月</button>
+            <button class="option-btn" data-value="1">一两年</button>
+            <button class="option-btn" data-value="3">很多年</button>
+          </div>
+        </div>
+
+        <div class="question">
+          <p>7. 买了会让你真正开心吗？</p>
+          <div class="options" data-question="q5">
+            <button class="option-btn" data-value="-3">新鲜感一过就后悔</button>
+            <button class="option-btn" data-value="-1">可能也就那样</button>
+            <button class="option-btn" data-value="1">应该会开心</button>
+            <button class="option-btn" data-value="3">一定会很开心</button>
+          </div>
+        </div>
+
+        <button class="btn" onclick="calculateResult()">告诉我结果</button>
+        <button class="btn btn-secondary" onclick="resetQuiz()" style="margin-left: 10px;">重新开始</button>
+      </div>
+
+      <div id="result" style="display: none;">
+        <h3 style="margin-bottom: 15px;">📊 分析结果</h3>
+        <div id="result-content"></div>
+        <button class="btn" onclick="resetQuiz()" style="margin-top: 20px;">再测一次</button>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2026 实用工具箱</p>
+    </footer>
+  </div>
+
+  <script>
+    let answers = {};
+
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const question = this.parentElement.getAttribute('data-question');
+        this.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        answers[question] = parseInt(this.getAttribute('data-value'));
+      });
+    });
+
+    function calculateResult() {
+      const name = document.getElementById('item-name').value || '这件东西';
+      const price = parseFloat(document.getElementById('price').value) || 0;
+      
+      if (Object.keys(answers).length < 5) {
+        alert('请回答所有问题哦～');
+        return;
+      }
+
+      const total = answers.q1 + answers.q2 + answers.q3 + answers.q4 + answers.q5;
+      let resultHTML = '';
+
+      if (total >= 10) {
+        resultHTML = `
+          <div class="result-box">
+            <h3>✅ 买！</h3>
+            <p>经过理性分析，<strong>${name}</strong>${price > 0 ? `（价值 ¥${price}）` : ''}值得你购买！</p>
+            <p style="margin-top:10px;">你对它的需求是真实的，经济也能承受，而且它会给你带来长期价值。</p>
+          </div>
+        `;
+      } else if (total >= 5) {
+        resultHTML = `
+          <div class="result-box">
+            <h3>🤔 可以等等看</h3>
+            <p><strong>${name}</strong>${price > 0 ? `（价值 ¥${price}）` : ''}可以再考虑一下。</p>
+            <p style="margin-top:10px;">建议：再等一周看看，如果到时还想买，而且经济允许，那就买吧。</p>
+          </div>
+        `;
+      } else if (total >= 0) {
+        resultHTML = `
+          <div class="result-box">
+            <h3>⚠️ 三思而后行</h3>
+            <p><strong>${name}</strong>${price > 0 ? `（价值 ¥${price}）` : ''}可能不是必须的。</p>
+            <p style="margin-top:10px;">问问自己：没有它之前的日子是怎么过的？真的需要改变吗？</p>
+          </div>
+        `;
+      } else {
+        resultHTML = `
+          <div class="result-box">
+            <h3>❌ 别买！</h3>
+            <p><strong>${name}</strong>${price > 0 ? `（价值 ¥${price}）` : ''}大概率会让你后悔的。</p>
+            <p style="margin-top:10px;">把钱要花在真正让你长期开心的事情上，这个显然不是。省下这笔钱，你会感谢自己的。</p>
+          </div>
+        `;
+      }
+
+      document.getElementById('quiz-form').style.display = 'none';
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result-content').innerHTML = resultHTML;
+    }
+
+    function resetQuiz() {
+      answers = {};
+      document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+      document.getElementById('item-name').value = '';
+      document.getElementById('price').value = '';
+      document.getElementById('quiz-form').style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>礼物推荐 - 送礼不再难</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← 返回首页</a>
+    
+    <div class="tool-header">
+      <h2>🎁 礼物推荐</h2>
+      <p>告诉我对方的情况，我给你推荐合适的礼物</p>
+    </div>
+
+    <div class="card">
+      <div id="quiz-form">
+        <div class="question">
+          <p>1. 对方是谁？</p>
+          <select id="relation">
+            <option value="">请选择...</option>
+            <option value="lover">男女朋友/伴侣</option>
+            <option value="parent">父母/长辈</option>
+            <option value="friend">朋友/闺蜜/兄弟</option>
+            <option value="colleague">同事/领导</option>
+            <option value="child">孩子/晚辈</option>
+            <option value="teacher">老师</option>
+          </select>
+        </div>
+
+        <div class="question">
+          <p>2. 对方的年龄？</p>
+          <select id="age">
+            <option value="">请选择...</option>
+            <option value="kid">12岁以下</option>
+            <option value="teen">13-20岁</option>
+            <option value="young">21-35岁</option>
+            <option value="middle">36-55岁</option>
+            <option value="senior">56岁以上</option>
+          </select>
+        </div>
+
+        <div class="question">
+          <p>3. 预算多少？</p>
+          <select id="budget">
+            <option value="">请选择...</option>
+            <option value="low">¥100以下（心意为主）</option>
+            <option value="medium">¥100-500（日常送礼）</option>
+            <option value="high">¥500-2000（重要场合）</option>
+            <option value="luxury">¥2000以上（大礼）</option>
+          </select>
+        </div>
+
+        <div class="question">
+          <p>4. 送礼的场合？</p>
+          <select id="occasion">
+            <option value="">请选择...</option>
+            <option value="birthday">生日</option>
+            <option value="holiday">节日（春节/中秋/圣诞）</option>
+            <option value="anniversary">纪念日</option>
+            <option value="graduation">毕业/升学</option>
+            <option value="wedding">结婚/乔迁</option>
+            <option value="thanks">感谢/报答</option>
+            <option value="visit">拜访/探望</option>
+          </select>
+        </div>
+
+        <div class="question">
+          <p>5. 对方的兴趣爱好？</p>
+          <select id="interest">
+            <option value="">请选择...</option>
+            <option value="tech">数码科技/游戏</option>
+            <option value="beauty">美妆/护肤</option>
+            <option value="fashion">时尚/穿搭</option>
+            <option value="food">美食/咖啡</option>
+            <option value="sport">运动/健身</option>
+            <option value="home">家居/生活</option>
+            <option value="reading">读书/学习</option>
+            <option value="travel">旅行/户外</option>
+            <option value="art">文艺/手作</option>
+            <option value="pet">养宠物</option>
+            <option value="health">养生/健康</option>
+          </select>
+        </div>
+
+        <button class="btn" onclick="generateGifts()">给我推荐</button>
+        <button class="btn btn-secondary" onclick="resetQuiz()" style="margin-left: 10px;">重置</button>
+      </div>
+
+      <div id="result" style="display: none;">
+        <h3 style="margin-bottom: 15px;">🎯 推荐清单</h3>
+        <div id="result-content"></div>
+        <button class="btn" onclick="resetQuiz()" style="margin-top: 20px;">重新选择</button>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2026 实用工具箱</p>
+    </footer>
+  </div>
+
+  <script>
+    const giftDatabase = {
+      lover_young_medium_birthday_beauty: [
+        { name: '口红/唇釉礼盒', desc: '经典色号，绝不会出错的选择', price: '¥150-350' },
+        { name: '香水', desc: '选她常用的品牌或者热门款', price: '¥300-800' },
+        { name: '护肤品套装', desc: '根据肤质选，送对了很加分', price: '¥200-600' }
+      ],
+      lover_young_medium_birthday_tech: [
+        { name: '机械键盘', desc: '游戏党的爱', price: '¥300-800' },
+        { name: '无线耳机', desc: '日常必备', price: '¥300-1200' },
+        { name: 'Switch游戏', desc: '如果他/她有Switch', price: '¥200-400' }
+      ],
+      parent_senior_medium_holiday_health: [
+        { name: '按摩仪/足浴盆', desc: '父母辈最爱，实用又贴心', price: '¥200-800' },
+        { name: '保健品礼盒', desc: '钙片/维生素/鱼油，注意选靠谱品牌', price: '¥200-500' },
+        { name: '保暖内衣/羊绒衫', desc: '冬天送温暖', price: '¥200-600' }
+      ],
+      friend_young_low_birthday_food: [
+        { name: '精品零食大礼包', desc: '选好看又好吃的，拍照朋友圈绝了', price: '¥80-200' },
+        { name: '咖啡/茶叶礼盒', desc: '打工人的续命神器', price: '¥80-200' },
+        { name: '餐厅代金卡/礼品卡', desc: '让TA自己选喜欢的', price: '¥100-500' }
+      ],
+      colleague_middle_medium_holiday_home: [
+        { name: '香薰蜡烛/扩香', desc: '提升生活品质', price: '¥100-300' },
+        { name: '精美茶具/咖啡具', desc: '办公桌上的小确幸', price: '¥150-400' },
+        { name: '桌面绿植', desc: '办公室一抹清新', price: '¥80-200' }
+      ],
+      child_kid_low_birthday_reading: [
+        { name: '绘本/童书套装', desc: '根据年龄选合适的', price: '¥80-300' },
+        { name: '益智玩具/积木', desc: '寓教于乐', price: '¥100-300' },
+        { name: '文具礼盒', desc: '开学季特别合适', price: '¥50-150' }
+      ],
+      teacher_middle_medium_thanks_home: [
+        { name: '钢笔/文具礼盒', desc: '经典不会错', price: '¥200-500' },
+        { name: '保温杯/水杯', desc: '日常实用', price: '¥150-400' },
+        { name: '茶叶/咖啡礼盒', desc: '适合任何老师', price: '¥200-500' }
+      ],
+      default: [
+        { name: '精美的花束', desc: '永远不会出错的经典选择', price: '¥100-500' },
+        { name: '品质巧克力/甜品礼盒', desc: '甜蜜的心意人人爱', price: '¥100-300' },
+        { name: '手写贺卡 + 小礼物', desc: '真诚是永远的必杀技', price: '¥50-200' },
+        { name: '礼品卡/购物卡', desc: '让收礼人自己选择，最实用', price: '¥200-1000' },
+        { name: '精致的文具/笔记本', desc: '生活工作都用得上', price: '¥80-200' }
+      ]
+    };
+
+    function generateGifts() {
+      const relation = document.getElementById('relation').value;
+      const age = document.getElementById('age').value;
+      const budget = document.getElementById('budget').value;
+      const occasion = document.getElementById('occasion').value;
+      const interest = document.getElementById('interest').value;
+
+      if (!relation || !age || !budget || !occasion || !interest) {
+        alert('请完整选择所有选项哦～');
+        return;
+      }
+
+      const keys = [
+        `${relation}_${age}_${budget}_${occasion}_${interest}`,
+        `${relation}_${age}_${budget}_${occasion}`,
+        `${relation}_${age}_${budget}`,
+        `${relation}_${age}`,
+        `${relation}`
+      ];
+
+      let gifts = null;
+      for (let key of keys) {
+        if (giftDatabase[key]) {
+          gifts = giftDatabase[key];
+          break;
+        }
+      }
+
+      if (!gifts) {
+        gifts = giftDatabase.default;
+      }
+
+      let resultHTML = '<p style="color: #7f8c8d; margin-bottom: 15px;">根据你的选择，推荐以下礼物：</p>';
+      
+      gifts.forEach((gift, index) => {
+        resultHTML += `
+          <div class="gift-result">
+            <h4>${index + 1}. ${gift.name} <span style="color: #667eea; font-size: 0.85em; font-weight: normal;">${gift.price}</span></h4>
+            <p>${gift.desc}</p>
+          </div>
+        `;
+      });
+
+      resultHTML += `
+        <div class="result-box" style="margin-top: 20px;">
+          <h3>💡 送礼小贴士</h3>
+          <p style="margin-top:10px;">1. 心意 > 价格，真诚最重要</p>
+          <p>2. 包装一下，仪式感翻倍</p>
+          <p>3. 加一张手写卡片，比任何礼物都暖心</p>
+          <p>4. 不确定的时候直接问TA想要什么！</p>
+        </div>
+      `;
+
+      document.getElementById('quiz-form').style.display = 'none';
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result-content').innerHTML = resultHTML;
+    }
+
+    function resetQuiz() {
+      document.getElementById('relation').value = '';
+      document.getElementById('age').value = '';
+      document.getElementById('budget').value = '';
+      document.getElementById('occasion').value = '';
+      document.getElementById('interest').value = '';
+      document.getElementById('quiz-form').style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>出门检查清单 - 不再忘带东西</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← 返回首页</a>
+    
+    <div class="tool-header">
+      <h2>✅ 出门检查清单</h2>
+      <p>出门前打个勾，不再忘带东西</p>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="daily">日常上班</button>
+        <button class="tab-btn" data-tab="travel">短途旅行</button>
+        <button class="tab-btn" data-tab="long">长途旅行</button>
+        <button class="tab-btn" data-tab="rainy">下雨天</button>
+      </div>
+
+      <div id="progress-section">
+        <p id="progress-text" style="font-size: 0.95em; color: #7f8c8d;">已完成 0 项</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div id="checklist-container"></div>
+
+      <button class="btn btn-secondary" onclick="resetChecklist()" style="margin-top: 20px;">重置清单</button>
+    </div>
+
+    <footer>
+      <p>© 2026 实用工具箱</p>
+    </footer>
+  </div>
+
+  <script>
+    const checklists = {
+      daily: {
+        title: '日常上班',
+        items: [
+          '手机 + 充电器/充电宝',
+          '钥匙（家门/办公室）',
+          '钱包/身份证',
+          '口罩',
+          '耳机',
+          '笔记本/笔（如有需要）',
+          '午餐/午餐券',
+          '公交卡/交通APP',
+          '眼镜/隐形眼镜',
+          '雨伞（看天气）',
+          '水杯',
+          '纸巾/湿巾'
+        ]
+      },
+      travel: {
+        title: '短途旅行（1-3天）',
+        items: [
+          '身份证/护照',
+          '手机 + 充电器 + 充电宝',
+          '换洗衣物',
+          '洗漱用品（牙刷/毛巾/洗发水）',
+          '内衣/袜子',
+          '雨伞',
+          '钱包/现金/银行卡',
+          '拖鞋',
+          '睡衣',
+          '护肤品小样',
+          '充电器/数据线',
+          '纸巾',
+          '水杯',
+          '零食（路上吃）'
+        ]
+      },
+      long: {
+        title: '长途旅行（4天+）',
+        items: [
+          '身份证/护照',
+          '手机 + 充电器 + 充电宝',
+          '多套换洗衣物',
+          '洗漱包（全套洗漱用品）',
+          '内衣/袜子（足够天数）',
+          '雨伞/雨衣',
+          '钱包/现金/多张银行卡',
+          '舒适的鞋子',
+          '睡衣',
+          '护肤品',
+          '相机/相机充电器',
+          '换洗衣物收纳袋',
+          '洗衣皂（方便洗衣服）',
+          '纸巾/湿巾',
+          '水杯',
+          '常用药品（感冒/肠胃/创可贴）',
+          '行程单/酒店预订单',
+          '零食',
+          '书籍/Kindle',
+          '耳机'
+        ]
+      },
+      rainy: {
+        title: '下雨天特别提醒',
+        items: [
+          '雨伞/雨衣',
+          '防水鞋套',
+          '手机防水袋',
+          '干纸巾/吸水毛巾',
+          '换的袜子',
+          '塑料袋（装湿雨伞）',
+          '别让包包弄湿！'
+        ]
+      }
+    };
+
+    let currentTab = 'daily';
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentTab = this.getAttribute('data-tab');
+        renderChecklist();
+      });
+    });
+
+    function renderChecklist() {
+      const checklist = checklists[currentTab];
+      const savedState = localStorage.getItem(`checklist_${currentTab}`);
+      const checkedItems = savedState ? JSON.parse(savedState) : [];
+
+      let html = `<h3 style="margin: 20px 0 15px;">${checklist.title}</h3>`;
+      
+      checklist.items.forEach((item, index) => {
+        const isChecked = checkedItems.includes(index);
+        html += `
+          <div class="checklist-item ${isChecked ? 'checked' : ''}">
+            <input type="checkbox" id="item-${index}" ${isChecked ? 'checked' : ''} onchange="toggleItem(${index})">
+            <label for="item-${index}">${item}</label>
+          </div>
+        `;
+      });
+
+      document.getElementById('checklist-container').innerHTML = html;
+      updateProgress();
+    }
+
+    function toggleItem(index) {
+      const savedState = localStorage.getItem(`checklist_${currentTab}`);
+      let checkedItems = savedState ? JSON.parse(savedState) : [];
+      
+      const checkbox = document.getElementById(`item-${index}`);
+      const itemDiv = checkbox.parentElement;
+      
+      if (checkbox.checked) {
+        if (!checkedItems.includes(index)) {
+          checkedItems.push(index);
+        }
+        itemDiv.classList.add('checked');
+      } else {
+        checkedItems = checkedItems.filter(i => i !== index);
+        itemDiv.classList.remove('checked');
+      }
+      
+      localStorage.setItem(`checklist_${currentTab}`, JSON.stringify(checkedItems));
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const checklist = checklists[currentTab];
+      const savedState = localStorage.getItem(`checklist_${currentTab}`);
+      const checkedItems = savedState ? JSON.parse(savedState) : [];
+      const total = checklist.items.length;
+      const checked = checkedItems.length;
+      const percent = Math.round((checked / total) * 100);
+
+      document.getElementById('progress-text').textContent = 
+        `已完成 ${checked}/${total} 项（${percent}%）`;
+      document.getElementById('progress-fill').style.width = `${percent}%`;
+    }
+
+    function resetChecklist() {
+      if (confirm('确定要重置当前清单吗？')) {
+        localStorage.removeItem(`checklist_${currentTab}`);
+        renderChecklist();
+      }
+    }
+
+    renderChecklist();
+  </script>
+</body>
+</html>
