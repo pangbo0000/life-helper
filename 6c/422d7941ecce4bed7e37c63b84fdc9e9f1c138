@@ -1,0 +1,14 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "6c422d7941ecce4bed7e37c63b84fdc9e9f1c138",
+  "prompts": {},
+  "humans": {
+    "h_f099cb2a424c62": {
+      "author": "pangbo.72 <pangbo.72@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
